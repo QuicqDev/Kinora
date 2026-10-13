@@ -1,0 +1,9 @@
+.claude-opus-research/
+.env
+.env.*
+!.env.example
+node_modules/
+.npm-cache/
+apps/heritage-bridge/dist/
+apps/heritage-bridge/.local/
+apps/heritage-bridge/test-results/

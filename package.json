@@ -1,0 +1,19 @@
+{
+  "name": "kinora-project",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "scripts": {
+    "dev": "npm --prefix apps/heritage-bridge run dev",
+    "start": "npm --prefix apps/heritage-bridge start",
+    "test": "npm --prefix apps/heritage-bridge test",
+    "check": "npm --prefix apps/heritage-bridge run check",
+    "tuesday:start": "node server.mjs",
+    "tuesday:dev": "node --watch server.mjs",
+    "tuesday:test": "node --test --experimental-test-isolation=none tests/*.test.mjs"
+  },
+  "license": "MIT"
+}

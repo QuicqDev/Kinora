@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f2f0e9"><title>Tuesday Fix — A plan for your quiet night.</title><link rel="stylesheet" href="/styles.css"></head>
+<body>
+  <header class="masthead"><a class="wordmark" href="/" aria-label="Tuesday Fix home">tuesday<span>fix.</span></a><span class="masthead-note">A GOOD NIGHT STARTS WITH A PLAN.</span><span class="mode">SAMPLE MODE <span aria-hidden="true">/</span> Qloo offline</span></header>
+  <main>
+    <section class="intro"><div><p class="eyebrow">FOR THE INDEPENDENT CAFÉ</p><h1>Tuesday needs a plan.</h1></div><p class="intro-note">Give people a reason to come in.<br>Build an event around the space,<br>staff and budget you already have.</p></section>
+    <div class="workspace">
+      <aside class="brief-panel"><div class="section-label"><span>01 / THE BRIEF</span><span>↓</span></div><h2>What are we <br>working with?</h2>
+        <form id="brief-form">
+          <label for="name">Café name</label><input id="name" name="name" value="Juniper Café" maxlength="100" required><p class="field-note">Fictional venue for this sample.</p>
+          <div class="field-pair"><div><label for="seats">Available seats</label><input id="seats" type="number" value="24" min="2" max="100" required></div><div><label for="staff">Available staff</label><input id="staff" type="number" value="2" min="0" max="10" required></div></div>
+          <label for="budget">Materials & setup <span>INR</span></label><div class="money-input"><span>₹</span><input id="budget" type="number" value="4500" min="0" max="1000000" step="1" required></div><p class="field-note">Wages, tax and refreshments are separate.</p>
+          <label class="check-label"><input id="kitchen" type="checkbox"><span>Kitchen available</span></label>
+          <button class="primary" type="submit" id="plan-button">Make a plan <span>→</span></button><p id="form-error" class="error" role="alert"></p>
+        </form>
+        <p class="brief-footnote">A smaller event can still be a good evening. Change a limit and see what fits.</p>
+      </aside>
+      <section class="ideas-panel" aria-label="Event inspirations and plan">
+        <div class="section-label"><span>02 / CHOOSE A STARTING POINT</span><span class="sample-label">EDITORIAL SAMPLES</span></div>
+        <div id="theme-options" class="theme-options"></div>
+        <div id="result" aria-live="polite" aria-busy="false">
+          <div class="empty-board"><div class="empty-poster"><div class="poster-top"><span>YOUR CAFÉ / AFTER HOURS</span><span>OPEN SLOT</span></div><span class="empty-day" aria-hidden="true">TUE</span><div class="empty-bottom"><h2>Nothing on.<br>Yet.</h2><p>Let’s put something<br>on the calendar.</p></div></div><div class="empty-notes"><span class="eyebrow">THE NIGHT IS YOURS</span><h3>A few tables.<br>A shared interest.<br>A reason to stay.</h3><p>Choose an idea above, set your limits and make a plan.</p><div class="empty-rule"><span>YOU’LL GET</span><ul><li>An event that fits your team</li><li>A materials estimate</li><li>A running order & invitation</li></ul></div><p class="data-note">Live cultural suggestions will use Qloo. These three examples let you try the planning flow.</p></div></div>
+        </div>
+      </section>
+    </div>
+    <footer><span>TUESDAY FIX</span><span>Local prototype · Sample themes & costs</span><span>Made for the nights in between.</span></footer>
+  </main><script type="module" src="/app.js"></script>
+</body></html>
