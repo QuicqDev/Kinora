@@ -32,3 +32,9 @@ Plan scrolling is confined to the dialog, preserving its position in the viewpor
 - The static transport, catalogue, live-provider boundaries, video and thumbnail were not replaced. The hosted preview remains sample-only.
 
 Public preview: https://quicqdev.github.io/Kinora/. The Pages workflow runs the existing 63-test suite and static-artifact audit before publishing updates.
+
+## Published verification
+
+[Pages run 39037769413](https://github.com/QuicqDev/Kinora/actions/runs/39037769413) passed the catalogue check, build, 63 tests and artifact audit, then deployed commit `33d3ac8`. Public HTML matched the audited local build, and the referenced script and stylesheet returned HTTP 200. The new opening, primary action, sample plan and confirmation-to-results flow were verified in the public browser with no console warnings or errors.
+
+A browser that still held the prior deployment's entry document needed a reload after publication. The refreshed document loaded the current assets successfully. Existing browser caches may require refreshing to see the update.
