@@ -1,3 +1,5 @@
+import { clientRequest } from './client-api';
+import { staticDemo } from './demo-mode';
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
 import type {
@@ -8,7 +10,7 @@ import type {
   Mode,
   Work,
 } from '../shared/types';
-import type { EditorialCollection } from '../shared/library';
+import type { EditorialCollection } from './catalogue';
 import type { LocalData } from './storage';
 import { Modal } from './Modal';
 import { Search } from './Search';
@@ -16,7 +18,7 @@ import { Results } from './Results';
 import { exampleFavorites } from '../shared/collections';
 import { exampleListeners, resolveExample, type ExampleListener } from './example-listeners';
 import { activityExamples, shortMoment } from '../shared/activity';
-import { publishedWorks } from '../shared/library';
+import { publishedWorks } from './catalogue';
 import type { BridgeDraft } from './bridge-draft';
 import { noArguments, toolResult, useWebMCP } from './webmcp';
 import { z } from 'zod';
@@ -65,12 +67,13 @@ export function StartingPoint({
   const activityPanel = useRef<HTMLDivElement>(null);
   const busy = !!phase;
   const webMCPStatus = useWebMCP(
-    mode === 'live'
+    mode === 'live' || staticDemo
       ? [
           {
             name: 'heritage_plan_moment',
-            description:
-              'Ask Gemini to plan the visible activity brief against the reviewed catalogue. Requires three confirmed favorites and an editable request. Uses the same bounded, cancellable API as Plan our moment and consumes the existing provider budget. Displays a proposal or clarification in the page. Does not rank or confirm; the person must choose Use this plan and find choices. Never reads album notes.',
+            description: staticDemo
+              ? 'Show a supported sample plan, checked locally against the public catalogue. No LLM or Qloo call. A person confirms before fixed sample choices appear. Never reads album notes.'
+              : 'Ask Gemini to plan the visible activity brief against the reviewed catalogue. Requires three confirmed favorites and an editable request. Uses the same bounded, cancellable API as Plan our moment and consumes the existing provider budget. Displays a proposal or clarification in the page. Does not rank or confirm; the person must choose Use this plan and find choices. Never reads album notes.',
             inputSchema: z.toJSONSchema(noArguments),
             execute: async (input, options) => {
               noArguments.parse(input);
@@ -138,7 +141,7 @@ export function StartingPoint({
     setError('');
     const timeout = setTimeout(() => controller.abort(), 130000);
     try {
-      const response = await fetch('/api/plan', {
+      const response = await clientRequest('/api/plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -197,7 +200,8 @@ export function StartingPoint({
     try {
       if (example) {
         if (example === 'fixture' && mode !== 'fixture') throw Error('Sample mode required');
-        if (example !== 'fixture' && mode !== 'live') throw Error('Live mode required');
+        if (example !== 'fixture' && mode !== 'live' && !staticDemo)
+          throw Error('Live mode required');
         values =
           example === 'fixture'
             ? exampleFavorites.slice(0, 3)
@@ -209,7 +213,7 @@ export function StartingPoint({
       resolving = false;
       if (prepareMoment) return;
       setPhase('ranking');
-      const response = await fetch('/api/discover', {
+      const response = await clientRequest('/api/discover', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -290,8 +294,9 @@ export function StartingPoint({
             What do they love?
           </h2>
           <p>
-            Choose three films, artists or books. We’ll use their favorites to find a film or song
-            from your heritage to share together.
+            {staticDemo
+              ? 'Choose three sample favorites to walk through the journey. Choices use fixed editorial order, so changing favorites does not personalize results.'
+              : 'Choose three films, artists or books. We’ll use their favorites to find a film or song from your heritage to share together.'}
           </p>
           {mode === 'unavailable' ? (
             <p className="error-box" role="status">
@@ -328,15 +333,16 @@ export function StartingPoint({
                   </button>
                 )}
               </div>
-              {mode === 'live' && (
+              {(mode === 'live' || staticDemo) && (
                 <div className="activity-brief" ref={activityPanel}>
                   <label htmlFor="family-brief">
                     <strong>What would fit your moment?</strong>{' '}
                     <span className="hint">Optional</span>
                   </label>
                   <p className="hint">
-                    Tell us what you’re doing and any time limit. The agent will check the
-                    collection before suggesting a plan.
+                    {staticDemo
+                      ? 'Choose a supported sample request below. This preview checks real catalogue durations locally and cannot interpret a custom situation.'
+                      : 'Tell us what you’re doing and any time limit. The agent will check the collection before suggesting a plan.'}
                   </p>
                   <textarea
                     id="family-brief"
@@ -351,7 +357,9 @@ export function StartingPoint({
                     }}
                   />
                   <p className="hint">
-                    This request goes to Gemini. Your album notes stay on this device.
+                    {staticDemo
+                      ? 'Sample data only. No request leaves this browser. Your album notes stay on this device.'
+                      : 'This request goes to Gemini. Your album notes stay on this device.'}
                   </p>
                   {webMCPStatus === 'ready' && (
                     <p className="hint">
@@ -359,7 +367,7 @@ export function StartingPoint({
                       before finding choices.
                     </p>
                   )}
-                  {!busy && !brief && (
+                  {!busy && (!brief || staticDemo) && (
                     <div className="activity-examples">
                       {activityExamples(collection.id, publishedWorks).map((example) => (
                         <button
@@ -379,7 +387,9 @@ export function StartingPoint({
                     <div className="activity-proposal" role="status" aria-live="polite">
                       <p className="eyebrow">
                         {plan.status === 'ready'
-                          ? 'A PLAN FOR YOUR MOMENT'
+                          ? staticDemo
+                            ? 'SAMPLE PLAN · CATALOGUE CHECKED'
+                            : 'A PLAN FOR YOUR MOMENT'
                           : 'LET’S ADJUST THE REQUEST'}
                       </p>
                       {plan.activity && (
@@ -393,7 +403,9 @@ export function StartingPoint({
                       <p>{plan.message}</p>
                       {plan.checks.length > 0 && (
                         <details>
-                          <summary>What the agent checked</summary>
+                          <summary>
+                            {staticDemo ? 'Verified duration checks' : 'What the agent checked'}
+                          </summary>
                           <ul>
                             {plan.checks.map((check, i) => (
                               <li key={i}>{check}</li>
@@ -403,9 +415,11 @@ export function StartingPoint({
                       )}
                       {plan.activity?.kind === 'artist' && (
                         <p className="hint">
-                          Qloo ranks artists; the starting song is editorial. A time limit includes
-                          only recordings with a verified duration. Allow extra time to open the
-                          service and talk.
+                          {staticDemo
+                            ? 'In the full app, Qloo ranks artists; here, artist order is a fixed sample. The starting song is editorial.'
+                            : 'Qloo ranks artists; the starting song is editorial.'}{' '}
+                          A time limit includes only recordings with a verified duration. Allow
+                          extra time to open the service and talk.
                         </p>
                       )}
                     </div>
@@ -444,28 +458,36 @@ export function StartingPoint({
                         plan?.status === 'needs_input'
                       }
                       onClick={() =>
-                        brief.trim() && mode === 'live'
+                        brief.trim() && (mode === 'live' || staticDemo)
                           ? plan?.status === 'ready'
                             ? find(undefined, plan.activity)
                             : planMoment()
                           : find()
                       }
                     >
-                      {brief.trim() && mode === 'live'
+                      {brief.trim() && (mode === 'live' || staticDemo)
                         ? plan?.status === 'ready'
-                          ? 'Use this plan and find choices'
+                          ? staticDemo
+                            ? 'Use sample plan and see choices'
+                            : 'Use this plan and find choices'
                           : plan?.status === 'needs_input'
                             ? 'Edit your request above'
-                            : 'Plan our moment'
+                            : staticDemo
+                              ? 'Show sample plan'
+                              : 'Plan our moment'
                         : 'Find our starting point'}{' '}
                       <ArrowRight size={16} />
                     </button>
                   </div>
                   <div className="example-listeners">
                     <p className="eyebrow">OR SEE THE BRIDGE WITH AN EXAMPLE</p>
-                    {mode === 'live' ? (
+                    {mode === 'live' || staticDemo ? (
                       exampleListeners.map((p) => (
-                        <button key={p.id} className="example-listener" onClick={() => find(p.id)}>
+                        <button
+                          key={p.id}
+                          className="example-listener"
+                          onClick={() => find(p.id, undefined, staticDemo)}
+                        >
                           <span>
                             <strong>{p.label}</strong>
                             <small>{p.names.join(' · ')}</small>
@@ -479,8 +501,10 @@ export function StartingPoint({
                       </button>
                     )}
                     <p className="hint">
-                      {mode === 'live'
-                        ? 'Made-up listener profiles using real artists. Qloo checks the names and ranks the choices; recent results may be reused.'
+                      {mode === 'live' || staticDemo
+                        ? staticDemo
+                          ? 'Synthetic listeners using real artists. Sample identities are local; no Qloo search or ranking runs.'
+                          : 'Made-up listener profiles using real artists. Qloo checks the names and ranks the choices; recent results may be reused.'
                         : 'An example of the flow. No Qloo request is made.'}
                     </p>
                   </div>

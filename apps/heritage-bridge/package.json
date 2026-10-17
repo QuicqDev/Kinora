@@ -18,7 +18,8 @@
     "live:audit": "node scripts/run.mjs audit",
     "live:smoke": "node scripts/run.mjs smoke",
     "live:warm": "node scripts/run.mjs warm",
-    "live:profiles": "node scripts/run.mjs profiles"
+    "live:profiles": "node scripts/run.mjs profiles",
+    "build:static": "tsc --noEmit && vite build --mode static-demo && tsx scripts/package-static.ts"
   },
   "dependencies": {
     "@fontsource/caveat": "5.3.0",

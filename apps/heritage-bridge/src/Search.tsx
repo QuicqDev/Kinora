@@ -1,6 +1,9 @@
+import { clientRequest } from './client-api';
+import { staticDemo } from './demo-mode';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Search as SearchIcon, Plus } from 'lucide-react';
 import type { Favorite, Kind, Mode } from '../shared/types';
+import { sampleFavorites } from './sample-api';
 import { exampleFavorites } from '../shared/collections';
 import { Modal } from './Modal';
 export function Search({
@@ -17,7 +20,9 @@ export function Search({
   const [kind, setKind] = useState<Kind>('movie');
   const [query, setQuery] = useState('');
   const [matches, setMatches] = useState<Favorite[]>(
-    mode === 'fixture' ? exampleFavorites.filter((f) => f.kind === 'movie') : [],
+    mode === 'fixture'
+      ? (staticDemo ? sampleFavorites : exampleFavorites).filter((f) => f.kind === 'movie')
+      : [],
   );
   const [chosen, setChosen] = useState<Favorite>();
   const [busy, setBusy] = useState(false);
@@ -28,7 +33,11 @@ export function Search({
     pending.current?.abort();
     setBusy(false);
     setKind(value);
-    setMatches(mode === 'fixture' ? exampleFavorites.filter((f) => f.kind === value) : []);
+    setMatches(
+      mode === 'fixture'
+        ? (staticDemo ? sampleFavorites : exampleFavorites).filter((f) => f.kind === value)
+        : [],
+    );
     setError('');
   }
   async function search() {
@@ -38,9 +47,12 @@ export function Search({
     setBusy(true);
     setError('');
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&kind=${kind}`, {
-        signal: controller.signal,
-      });
+      const response = await clientRequest(
+        `/api/search?q=${encodeURIComponent(query)}&kind=${kind}`,
+        {
+          signal: controller.signal,
+        },
+      );
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
       if (!controller.signal.aborted) {
@@ -85,7 +97,7 @@ export function Search({
         <>
           <p>
             {mode === 'fixture'
-              ? 'Sample preview · Choose from six example favorites.'
+              ? 'Sample preview · Search the supported example favorites only. Other names return no matches; no live identity search runs.'
               : 'Search Qloo, then confirm the intended match. Nothing is selected automatically.'}
           </p>
           <div className="format-tabs" role="group" aria-label="Favorite format">

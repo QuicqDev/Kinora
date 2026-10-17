@@ -1,6 +1,7 @@
+import { clientRequest } from './client-api';
 import { useEffect, useRef, useState } from 'react';
 import type { ChoiceOrigin, CollectionId, Discovery, Mode, Work } from '../shared/types';
-import { library } from '../shared/library';
+import { library } from './catalogue';
 import type { LocalData } from './storage';
 import { Results } from './Results';
 export function Connection({
@@ -43,7 +44,7 @@ export function Connection({
     setBusy(true);
     const timeout = setTimeout(() => active.abort(), 180000);
     try {
-      const r = await fetch('/api/connect', {
+      const r = await clientRequest('/api/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

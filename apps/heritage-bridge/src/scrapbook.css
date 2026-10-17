@@ -9,13 +9,33 @@
 }
 
 @media (max-width: 380px) {
-  .page .brand { font-size: 19px; }
-  .page .bridge-mark { margin-right: 2px; width: 23px; }
-  .page .collection-picker { grid-template-columns: 1fr; }
-  .page .collection-option { min-height: 54px; flex-direction: row; align-items: center; padding: 10px 12px; }
-  .page .collection-script { margin-left: auto; margin-right: 25px; }
-  .page .selection-dot { top: 18px; right: 12px; }
-  .page .collection-option.selected { box-shadow: inset 3px 0 #657156; }
+  .page .brand {
+    font-size: 19px;
+  }
+  .page .bridge-mark {
+    margin-right: 2px;
+    width: 23px;
+  }
+  .page .collection-picker {
+    grid-template-columns: 1fr;
+  }
+  .page .collection-option {
+    min-height: 54px;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 12px;
+  }
+  .page .collection-script {
+    margin-left: auto;
+    margin-right: 25px;
+  }
+  .page .selection-dot {
+    top: 18px;
+    right: 12px;
+  }
+  .page .collection-option.selected {
+    box-shadow: inset 3px 0 #657156;
+  }
 }
 .page {
   max-width: 1360px;
@@ -658,4 +678,57 @@ header {
   .results h2 {
     font-size: 30px;
   }
+}
+
+/* The sample label belongs to the scrapbook, including narrow screens. */
+.demo-banner {
+  margin: 0 0 28px;
+  padding: 16px 20px;
+  background: #eee6d4;
+  border: 1px dashed #a39270;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 20px;
+  font-size: 0.88rem;
+}
+.demo-banner strong {
+  color: #4c573c;
+}
+.demo-banner details {
+  flex-basis: 100%;
+}
+.demo-banner summary {
+  cursor: pointer;
+  text-decoration: underline;
+}
+.demo-banner p {
+  max-width: 850px;
+  line-height: 1.6;
+}
+
+.collection-cover.french {
+  background: #e4d8df;
+  border-color: #c9b8c2;
+}
+.collection-cover.british {
+  background: #d5dfe1;
+  border-color: #b5c4ca;
+}
+.collection-cover.usa {
+  background: #ead7c5;
+  border-color: #d1b9a1;
+}
+.collection-cover.japanese {
+  background: #e8d5d2;
+  border-color: #cfb6b1;
+}
+.collection-cover.korean {
+  background: #dce1cd;
+  border-color: #bec7ac;
+}
+.collection-cover.italian {
+  background: #e8dfc9;
+  border-color: #cfc2a1;
 }

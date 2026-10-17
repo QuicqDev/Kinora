@@ -1,5 +1,9 @@
 # Browser-agent integration
 
+## Static judge preview
+
+In `build:static`, these tools use the nine public sample collections. Preparation uses local synthetic identities; `heritage_plan_moment` checks a supported sample brief against catalogue durations without Gemini. Confirmation shows fixed editorial choices, without a Qloo ranking. Unsupported custom requests get an explicit limitation message. Tool descriptions, schemas and visible labels reflect the static behavior. Inspection and resume remain local; album notes are not exposed. The remaining sections describe the full live implementation and its historical verification.
+
 Kinora exposes browser-native WebMCP tools. The browser assistant operates the same React state and planning endpoint as the visible interface. This is separate from the server's Qloo MCP integration: WebMCP connects a browser assistant to the page; Gemini plans against the reviewed catalogue; Qloo ranks the confirmed activity's candidates.
 
 ## Demo callout

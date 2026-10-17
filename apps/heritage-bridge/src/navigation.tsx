@@ -1,15 +1,29 @@
+import { staticDemo } from './demo-mode';
 import { useEffect, useState, type AnchorHTMLAttributes } from 'react';
+function currentPath() {
+  if (!staticDemo) return location.pathname;
+  return location.hash.startsWith('#/')
+    ? location.hash.slice(1)
+    : '/' + location.pathname.slice(import.meta.env.BASE_URL.length);
+}
+function address(path: string) {
+  return staticDemo ? import.meta.env.BASE_URL + '#' + path : path;
+}
 export function navigate(path: string) {
-  if (location.pathname === path) return;
-  history.pushState(null, '', path);
+  if (currentPath() === path) return;
+  history.pushState(null, '', address(path));
   window.dispatchEvent(new PopStateEvent('popstate'));
 }
 export function usePath() {
-  const [path, setPath] = useState(location.pathname);
+  const [path, setPath] = useState(currentPath);
   useEffect(() => {
-    const update = () => setPath(location.pathname);
+    const update = () => setPath(currentPath());
     window.addEventListener('popstate', update);
-    return () => window.removeEventListener('popstate', update);
+    window.addEventListener('hashchange', update);
+    return () => {
+      window.removeEventListener('popstate', update);
+      window.removeEventListener('hashchange', update);
+    };
   }, []);
   return path.replace(/\/$/, '') || '/';
 }
@@ -17,7 +31,7 @@ export function Link({ href = '/', onClick, ...props }: AnchorHTMLAttributes<HTM
   return (
     <a
       {...props}
-      href={href}
+      href={address(href)}
       onClick={(event) => {
         onClick?.(event);
         if (

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowUpRight, BookOpen, Film, Music2 } from 'lucide-react';
-import { collections } from '../shared/collections';
+import { collections } from './catalogue';
 import type { CollectionId, ChoiceOrigin, Work } from '../shared/types';
 import type { LocalData } from './storage';
 

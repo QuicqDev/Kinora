@@ -1,5 +1,7 @@
 # Small single-instance release setup
 
+This document covers the full live app. For the backend-free GitHub Pages sample preview, use [STATIC_DEMO.md](STATIC_DEMO.md) and `npm run build:static`. The static artifact contains no server, credentials or private state, and the workflow uploads only `dist/`. Private-repository Pages is currently blocked by the existing GitHub plan; visibility has not been changed.
+
 Use Node >=22.19. Build with `npm ci` and `npm run build`. Keep the generated dist folder, server/shared/scripts source and lockfile in the deployment artifact. A production `npm ci --omit=dev` retains tsx, which runs the server. Start with `npm start`.
 
 Set server-side credentials and `HERITAGE_MODE=live`. Additional configuration:

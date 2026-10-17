@@ -1,4 +1,4 @@
-import type { CollectionId, Work } from './types';
+import type { CollectionId, LiveCollectionId, Work } from './types';
 import { expansion } from './reviewed-expansion';
 import songDurations from './song-durations.json';
 // Original short summaries, not copied descriptions. No artwork is redistributed.
@@ -150,7 +150,7 @@ const reviewed: Work[] = [
   },
 ];
 // Frozen candidates for coverage research; never silently promoted to recommendations.
-const queue: Record<CollectionId, { movies: string[]; artists: string[] }> = {
+const queue: Record<LiveCollectionId, { movies: string[]; artists: string[] }> = {
   hindi: {
     movies: [
       'Taare Zameen Par',

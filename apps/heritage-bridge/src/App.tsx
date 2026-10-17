@@ -1,3 +1,5 @@
+import { clientRequest } from './client-api';
+import { staticDemo } from './demo-mode';
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -15,7 +17,7 @@ import {
   albumWorks,
   publishedWorks,
   type EditorialCollection,
-} from '../shared/library';
+} from './catalogue';
 import type { ChoiceOrigin, CollectionId, Favorite, Feedback, Mode, Work } from '../shared/types';
 import { readLocal, writeLocal, emptyLocal, recordExperience, recoveryCopy } from './storage';
 import { Modal } from './Modal';
@@ -40,12 +42,14 @@ import { z } from 'zod';
 export function App() {
   const path = usePath();
   const [clearAlbum, setClearAlbum] = useState(false);
-  const [mode, setMode] = useState<Mode>('unavailable');
+  const [mode, setMode] = useState<Mode>(staticDemo ? 'fixture' : 'unavailable');
   const [local, setLocal] = useState(readLocal);
   const [storageError, setStorageError] = useState(false);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [exampleIds, setExampleIds] = useState<string[]>([]);
-  const [targetCollection, setTargetCollection] = useState<CollectionId>('hindi');
+  const [targetCollection, setTargetCollection] = useState<CollectionId>(
+    staticDemo ? 'mexican' : 'hindi',
+  );
   const [recovery] = useState(recoveryCopy);
   const [personalize, setPersonalize] = useState<EditorialCollection>();
   const [initialExample, setInitialExample] = useState<ExampleListener | 'fixture'>();
@@ -62,20 +66,22 @@ export function App() {
   const webMCPStatus = useWebMCP([
     {
       name: 'heritage_inspect_collection',
-      description:
-        'Inspect the public Hindi, Tamil or Mexican catalogue for films or starting songs within a playback limit. This is catalogue feasibility, not personalized ranking. Returns reviewed durations and work IDs; never reads private album data.',
+      description: staticDemo
+        ? 'Inspect the nine public sample collections for films or recordings within a playback limit. Returns reviewed durations and source links. Local catalogue feasibility only, with no Qloo or Gemini call. Never reads private album data.'
+        : 'Inspect the public Hindi, Tamil or Mexican catalogue for films or starting songs within a playback limit. This is catalogue feasibility, not personalized ranking. Returns reviewed durations and work IDs; never reads private album data.',
       inputSchema: z.toJSONSchema(inspectCollectionSchema),
       annotations: { readOnlyHint: true },
       execute: async (input) => toolResult(inspectCollection(input)),
     },
     {
       name: 'heritage_prepare_bridge',
-      description:
-        'Open a visible, editable activity request. Replaces the active bridge draft and results. Choose current favorites or an explicitly requested synthetic pop/instrumental example (which resolves artist names through Qloo). Does not run planning or ranking. Next use heritage_plan_moment, then let the person confirm the plan in the page. The brief will go to Gemini only when planning is requested.',
+      description: staticDemo
+        ? 'Prepare a visible static demo with synthetic pop favorites and a supported sample request. Replaces the active draft and results. No Qloo or Gemini call. Use heritage_plan_moment for a local catalogue check, then let the person confirm. Custom requests will receive an honest unsupported-input message.'
+        : 'Open a visible, editable activity request. Replaces the active bridge draft and results. Choose current favorites or an explicitly requested synthetic pop/instrumental example (which resolves artist names through Qloo in the full live app). Does not run planning or ranking. Next use heritage_plan_moment, then let the person confirm the plan in the page. The brief will go to Gemini only when planning is requested.',
       inputSchema: z.toJSONSchema(prepareBridgeSchema),
       execute: async (input) => {
         const args = prepareBridgeSchema.parse(input);
-        if (mode !== 'live')
+        if (mode !== 'live' && !staticDemo)
           throw Error('Live activity planning is unavailable. Browse the collections instead.');
         if (args.favorites !== 'current') {
           setFavorites([]);
@@ -88,7 +94,9 @@ export function App() {
         setPersonalize(library.find((c) => c.id === args.collection)!);
         return toolResult({
           status: 'prepared',
-          next: 'The request is visible. Wait for three favorites to be confirmed, then call heritage_plan_moment or use Plan our moment. A person confirms the proposed plan before ranking.',
+          next: staticDemo
+            ? 'Sample request prepared. Use heritage_plan_moment for local duration checks, then let the person confirm fixed sample choices.'
+            : 'The request is visible. Wait for three favorites to be confirmed, then call heritage_plan_moment or use Plan our moment. A person confirms the proposed plan before ranking.',
         });
       },
     },
@@ -108,7 +116,7 @@ export function App() {
   ]);
   useEffect(() => {
     const controller = new AbortController();
-    fetch('/api/status', { signal: controller.signal })
+    clientRequest('/api/status', { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw Error();
         return r.json();
@@ -204,7 +212,19 @@ export function App() {
   );
   return (
     <div className="page library-page">
-      <a className="skip" href="#main">
+      <a
+        className="skip"
+        href="#main"
+        onClick={
+          staticDemo
+            ? (e) => {
+                e.preventDefault();
+                main.current?.focus();
+                main.current?.scrollIntoView();
+              }
+            : undefined
+        }
+      >
         Skip to content
       </a>
       <header>
@@ -226,6 +246,20 @@ export function App() {
         </nav>
       </header>
       <main id="main" ref={main} tabIndex={-1}>
+        {staticDemo && (
+          <aside className="demo-banner" aria-label="About this demo">
+            <strong>Interactive judge demo</strong>
+            <span>Sample plans &amp; choices in your browser. Full app: Qloo + Gemini.</span>
+            <details>
+              <summary>How the full app works</summary>
+              <p>
+                The full Kinora app integrates Qloo Insights API v2 for taste rankings and Gemini
+                for activity planning. This hosted preview uses reviewed public catalogue facts and
+                synthetic listeners. No live recommendations, API calls or LLM calls run here.
+              </p>
+            </details>
+          </aside>
+        )}
         {(bridgeDraft.result || bridgeDraft.brief) && (
           <button className="secondary resume-bridge" onClick={resumeBridge}>
             <ArrowLeft size={16} /> Back to my bridge
@@ -260,7 +294,7 @@ export function App() {
                 </h1>
                 <p className="lead">
                   Start with films, artists or books your child loves. Find a film or song from your
-                  heritage to share, with Qloo. Keep the memory.
+                  heritage to share. Keep the memory.
                 </p>
                 <div className="bridge-start">
                   <label htmlFor="heritage-choice">Which heritage would you like to share?</label>
@@ -277,14 +311,21 @@ export function App() {
                   </select>
                   <button
                     className="primary"
-                    onClick={() => startBridge(library.find((c) => c.id === targetCollection)!)}
+                    onClick={() =>
+                      startBridge(
+                        library.find((c) => c.id === targetCollection)!,
+                        staticDemo ? 'pop' : undefined,
+                        staticDemo,
+                      )
+                    }
                   >
-                    Find our starting point <ArrowRight size={18} />
+                    {staticDemo ? 'Try the interactive example' : 'Find our starting point'}{' '}
+                    <ArrowRight size={18} />
                   </button>
                 </div>
                 {mode !== 'unavailable' && (
                   <div className="home-examples" aria-label="See an example bridge">
-                    {mode === 'live' && (
+                    {(mode === 'live' || staticDemo) && (
                       <button
                         className="secondary moment-demo"
                         onClick={() =>
@@ -297,7 +338,11 @@ export function App() {
                       >
                         <span>
                           <strong>Try a five-minute listening plan</strong>
-                          <small>Example pop tastes · editable situation · live agent + Qloo</small>
+                          <small>
+                            {staticDemo
+                              ? '1. Sample favorites → 2. Checked plan → 3. Choices → 4. Album'
+                              : 'Example pop tastes · editable situation · live agent + Qloo'}
+                          </small>
                         </span>
                         <ArrowRight size={18} />
                       </button>
@@ -351,7 +396,7 @@ export function App() {
               </div>
               <figure className="memory-illustration">
                 <img
-                  src="/images/shared-memories.png"
+                  src={import.meta.env.BASE_URL + 'images/shared-memories.png'}
                   alt="An illustration of two generations sharing a cassette beside an open family album"
                 />
                 <figcaption>Something familiar. Something to share.</figcaption>
@@ -368,7 +413,7 @@ export function App() {
                   <h2 id="collections-title">Start somewhere close to home.</h2>
                 </div>
                 <p>
-                  Three small collections.
+                  {staticDemo ? 'Nine small collections.' : 'Three small collections.'}
                   <br />
                   Take them at your own pace.
                 </p>
@@ -384,7 +429,19 @@ export function App() {
                       <div className="cover-middle">
                         <span
                           className="cover-script"
-                          lang={c.id === 'hindi' ? 'hi' : c.id === 'tamil' ? 'ta' : 'es'}
+                          lang={
+                            {
+                              hindi: 'hi',
+                              tamil: 'ta',
+                              mexican: 'es',
+                              french: 'fr',
+                              british: 'en',
+                              usa: 'en',
+                              japanese: 'ja',
+                              korean: 'ko',
+                              italian: 'it',
+                            }[c.id]
+                          }
                         >
                           {c.script}
                         </span>
@@ -432,8 +489,14 @@ export function App() {
                 <h1>{collection.title}</h1>
                 <p className="collection-lead">{collection.introduction}</p>
                 <p className="audience">{collection.audience}</p>
-                <button className="primary" onClick={() => startBridge(collection)}>
-                  Find my starting point <ArrowRight size={16} />
+                <button
+                  className="primary"
+                  onClick={() =>
+                    startBridge(collection, staticDemo ? 'pop' : undefined, staticDemo)
+                  }
+                >
+                  {staticDemo ? 'Try a sample bridge' : 'Find my starting point'}{' '}
+                  <ArrowRight size={16} />
                 </button>
                 <p className="hint">
                   Start with their favorites. Find something from your world to share.
@@ -747,11 +810,12 @@ export function App() {
                     </div>
                   </fieldset>
                   <p className="hint">
-                    Interest and difficulty are separate. Only “Want more like this” adds a positive
-                    taste signal.
+                    {staticDemo
+                      ? 'Interest and difficulty are recorded locally in this demo. Feedback does not change the fixed sample order.'
+                      : 'Interest and difficulty are separate. Only “Want more like this” adds a positive taste signal.'}
                   </p>
                 </section>
-                {publishedWorks.some((w) => w.id === work.id) && (
+                {!staticDemo && publishedWorks.some((w) => w.id === work.id) && (
                   <Connection
                     key={work.id}
                     work={work}
@@ -767,6 +831,39 @@ export function App() {
           })()}
         {path === '/album' && (
           <section className="album-page">
+            {staticDemo && (
+              <p className="sample-notice">
+                Demo album · Your saves and notes stay in this browser. Start with a synthetic
+                sample memory or save a choice from your bridge.
+              </p>
+            )}
+            {staticDemo && !local.saved.length && (
+              <button
+                className="secondary"
+                onClick={() =>
+                  setLocal((v) => ({
+                    ...v,
+                    notes: {
+                      ...v.notes,
+                      'mexican-natalia':
+                        'Sample memory: This song made us think about the places we call home.',
+                    },
+                    saved: [
+                      {
+                        id: 'mexican-natalia',
+                        mode: 'fixture',
+                        at: '2026-10-17T00:00:00Z',
+                        note: 'Sample memory: This song made us think about the places we call home.',
+                        stage: 'tried',
+                        triedAt: '2026-10-17T00:00:00Z',
+                      },
+                    ],
+                  }))
+                }
+              >
+                Add a sample album page
+              </button>
+            )}
             <Album local={local} works={albumWorks} onOpen={open} />
             <Link className="text-link" href="/explore">
               Find something to share <ArrowRight size={16} />
@@ -785,7 +882,15 @@ export function App() {
       </main>
       <footer>
         <span className="handwritten">A bridge, one shared moment at a time.</span>
-        <span>Kinora · Made for the stories between us</span>
+        <span>
+          Kinora · Made for the stories between us{' '}
+          {staticDemo && (
+            <>
+              {' '}
+              · <a href={import.meta.env.BASE_URL + 'licenses.txt'}>Licenses &amp; credits</a>
+            </>
+          )}
+        </span>
         <details className="browser-assistant">
           <summary>
             Browser assistant ·{' '}
@@ -796,9 +901,9 @@ export function App() {
                 : 'WebMCP unavailable here'}
           </summary>
           <p>
-            A compatible browser assistant can inspect the collection, prepare a request, ask for a
-            plan and reopen your bridge. You confirm the plan before Qloo ranks choices. Album notes
-            are not exposed as tools.
+            {staticDemo
+              ? 'A compatible browser assistant can inspect public catalogue facts, prepare a sample request, show local duration checks and reopen the sample bridge. You confirm before fixed sample choices appear. No Qloo or Gemini call runs. Album notes are not exposed as tools.'
+              : 'A compatible browser assistant can inspect the collection, prepare a request, ask for a plan and reopen your bridge. You confirm the plan before Qloo ranks choices. Album notes are not exposed as tools.'}
           </p>
           {webMCPStatus !== 'ready' && (
             <p>

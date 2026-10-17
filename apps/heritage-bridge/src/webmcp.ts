@@ -1,7 +1,9 @@
+import { staticDemo } from './demo-mode';
+import { collectionIds, liveCollectionIds } from '../shared/types';
 import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { activityExamples, durationMs, fitsActivity } from '../shared/activity';
-import { library, publishedWorks } from '../shared/library';
+import { library, publishedWorks } from './catalogue';
 
 export interface PageTool {
   name: string;
@@ -17,14 +19,14 @@ export interface ModelContext {
 export const noArguments = z.object({}).strict();
 export const prepareBridgeSchema = z
   .object({
-    collection: z.enum(['hindi', 'tamil', 'mexican']),
+    collection: z.enum(staticDemo ? collectionIds : liveCollectionIds),
     brief: z.string().trim().min(5).max(500),
     favorites: z.enum(['current', 'pop', 'instrumental']),
   })
   .strict();
 export const inspectCollectionSchema = z
   .object({
-    collection: z.enum(['hindi', 'tamil', 'mexican']),
+    collection: z.enum(staticDemo ? collectionIds : liveCollectionIds),
     kind: z.enum(['movie', 'artist']),
     maxMinutes: z.number().int().min(1).max(360).nullable(),
   })

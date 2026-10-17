@@ -6,6 +6,10 @@ Built for the [Qloo Agentic Hackathon](https://qloo.devpost.com/). Three source-
 
 Previously called Heritage Bridge. The app directory, environment variables and saved-album format retain their existing names for compatibility; earlier research and screenshots use the original name.
 
+## Static judge preview
+
+`npm run build:static` in the app directory creates a backend-free preview with **90 reviewed works across nine collections**: Hindi, Tamil, Mexican, French, British, US, Japanese, Korean and Italian. Plans and ranked positions are clearly labeled editorial samples; no Qloo, Gemini or other live recommendation calls run. The full live app remains a separate build. See [static demo and deployment status](apps/heritage-bridge/docs/STATIC_DEMO.md). GitHub Pages is currently blocked by the private repository's account-plan restriction; the repository has not been made public.
+
 ## Install and run
 
 Requires Node **22.19 or newer** and npm. Install the app dependencies:

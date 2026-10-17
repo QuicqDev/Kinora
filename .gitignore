@@ -7,3 +7,5 @@ node_modules/
 apps/heritage-bridge/dist/
 apps/heritage-bridge/.local/
 apps/heritage-bridge/test-results/
+/videos/
+apps/heritage-bridge/test-results-static.txt

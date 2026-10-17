@@ -1,4 +1,15 @@
-export type CollectionId = 'hindi' | 'tamil' | 'mexican';
+export const liveCollectionIds = ['hindi', 'tamil', 'mexican'] as const;
+export const collectionIds = [
+  ...liveCollectionIds,
+  'french',
+  'british',
+  'usa',
+  'japanese',
+  'korean',
+  'italian',
+] as const;
+export type LiveCollectionId = (typeof liveCollectionIds)[number];
+export type CollectionId = (typeof collectionIds)[number];
 export type Kind = 'movie' | 'artist' | 'book';
 export type Mode = 'fixture' | 'live' | 'unavailable';
 export type ChoiceOrigin = Mode | 'editorial';

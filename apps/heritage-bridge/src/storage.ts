@@ -1,3 +1,5 @@
+import { staticDemo } from './demo-mode';
+const storageKey = staticDemo ? 'kinora.static-demo.v1' : 'heritage-bridge.v1';
 import { z } from 'zod';
 import type { Feedback, ChoiceOrigin, Work } from '../shared/types';
 const schema = z.object({
@@ -38,7 +40,7 @@ export const emptyLocal: LocalData = { notes: {}, saved: [], feedback: {} };
 let pendingRecovery: string | undefined;
 export function recoveryCopy(): string | undefined {
   try {
-    return pendingRecovery ?? localStorage.getItem('heritage-bridge.v1.recovery') ?? undefined;
+    return pendingRecovery ?? localStorage.getItem(storageKey + '.recovery') ?? undefined;
   } catch {
     return pendingRecovery;
   }
@@ -46,7 +48,7 @@ export function recoveryCopy(): string | undefined {
 export function readLocal(): LocalData {
   let raw: string | null = null;
   try {
-    raw = localStorage.getItem('heritage-bridge.v1');
+    raw = localStorage.getItem(storageKey);
     if (!raw) return { notes: {}, saved: [], feedback: {} };
     const value = JSON.parse(raw);
     const parsed = schema.safeParse(value);
@@ -78,10 +80,10 @@ export function readLocal(): LocalData {
 export function writeLocal(value: LocalData) {
   try {
     if (pendingRecovery) {
-      localStorage.setItem('heritage-bridge.v1.recovery', pendingRecovery);
+      localStorage.setItem(storageKey + '.recovery', pendingRecovery);
       pendingRecovery = undefined;
     }
-    localStorage.setItem('heritage-bridge.v1', JSON.stringify(value));
+    localStorage.setItem(storageKey, JSON.stringify(value));
     return true;
   } catch {
     return false;

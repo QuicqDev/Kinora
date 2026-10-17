@@ -1,3 +1,4 @@
+import { staticDemo } from './demo-mode';
 import { ArrowRight, Bookmark, Check, ExternalLink, Film, Music2 } from 'lucide-react';
 import type { ActivityPlan, Discovery, Feedback, Mode, Work } from '../shared/types';
 import { Modal } from './Modal';
@@ -78,7 +79,9 @@ export function Results({
       )}
       {moment?.brief && result.activity && (
         <details className="evidence">
-          <summary>Your request and the agent’s checks</summary>
+          <summary>
+            {staticDemo ? 'Sample request and local checks' : 'Your request and the agent’s checks'}
+          </summary>
           <p>{moment.brief}</p>
           <ul>
             {moment.plan?.checks.map((check, i) => (
@@ -153,8 +156,10 @@ export function Results({
               : 'Every displayed item is in the selected collection and was returned by Qloo. There is no verified attribution to an individual favorite, so no specific causal connection is claimed.'}
           </p>
           <p>
-            <strong>Selection scope:</strong> up to ten verified new candidates per format, in
-            editorial order; one Qloo query per format. Separate rankings are never combined.
+            <strong>Selection scope:</strong>{' '}
+            {staticDemo
+              ? 'Up to three sample choices in fixed catalogue order, filtered by the selected collection, confirmed playback limit and locally recorded exclusions. No taste ranking is calculated.'
+              : 'Up to ten verified new candidates per format, in editorial order; one Qloo query per format. Separate rankings are never combined.'}
           </p>
           <p>
             <strong>About the works:</strong> the factual notes come from the linked source on each

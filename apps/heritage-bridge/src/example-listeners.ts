@@ -1,3 +1,4 @@
+import { clientRequest } from './client-api';
 import type { Favorite } from '../shared/types';
 
 export const exampleListeners = [
@@ -14,7 +15,7 @@ export type ExampleListener = (typeof exampleListeners)[number]['id'];
 export async function resolveExample(
   id: ExampleListener,
   signal: AbortSignal,
-  request: typeof fetch = fetch,
+  request: typeof fetch = clientRequest,
 ): Promise<Favorite[]> {
   const profile = exampleListeners.find((p) => p.id === id)!;
   const favorites: Favorite[] = [];

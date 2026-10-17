@@ -4,6 +4,8 @@ Start with what your child loves. Find a film or song from your heritage to shar
 
 Read the [repository README](../../README.md) for the product, credentials, licensing and historical prototype. This is the current app, with 60 original source-reviewed entries across Hindi, Tamil and Mexican collections.
 
+The separate **static judge preview** has nine collections and 90 reviewed entries, including French, British/English-language, US, Japanese, Korean and Italian shelves. Build with `npm run build:static` and publish only `dist/`. It uses synthetic listeners, local sample plans and fixed editorial choices, with no backend or provider calls. Read [static demo verification and Pages blocker](docs/STATIC_DEMO.md) for the sample journey, public data provenance and deployment status.
+
 ## Run
 
 Requires Node >=22.19. From this directory:
