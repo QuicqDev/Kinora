@@ -211,7 +211,7 @@ export function App() {
     </button>
   );
   return (
-    <div className="page library-page">
+    <div className={'page library-page' + (staticDemo ? ' judge-preview' : '')}>
       <a
         className="skip"
         href="#main"
@@ -248,10 +248,10 @@ export function App() {
       <main id="main" ref={main} tabIndex={-1}>
         {staticDemo && (
           <aside className="demo-banner" aria-label="About this demo">
-            <strong>Interactive judge demo</strong>
-            <span>Sample plans &amp; choices in your browser. Full app: Qloo + Gemini.</span>
+            <strong>Interactive demo</strong>
+            <span>Fixed sample data · No live AI calls</span>
             <details>
-              <summary>How the full app works</summary>
+              <summary>About this demo</summary>
               <p>
                 The full Kinora app integrates Qloo Insights API v2 for taste rankings and Gemini
                 for activity planning. This hosted preview uses reviewed public catalogue facts and
@@ -286,18 +286,34 @@ export function App() {
           <>
             <section className="library-intro">
               <div>
-                <p className="eyebrow">FILMS, SONGS & THE STORIES BETWEEN US</p>
+                <p className="eyebrow">
+                  {staticDemo
+                    ? 'A SHARED SONG. A FAMILY STORY.'
+                    : 'FILMS, SONGS & THE STORIES BETWEEN US'}
+                </p>
                 <h1>
-                  Their favorites.
+                  {staticDemo ? 'Connect your child' : 'Their favorites.'}
                   <br />
-                  <em>Your heritage.</em>
+                  <em>{staticDemo ? 'with your culture.' : 'Your heritage.'}</em>
                 </h1>
                 <p className="lead">
-                  Start with films, artists or books your child loves. Find a film or song from your
-                  heritage to share. Keep the memory.
+                  {staticDemo
+                    ? 'Find a film or song from your heritage through what they already love, then keep the memory together.'
+                    : 'Start with films, artists or books your child loves. Find a film or song from your heritage to share. Keep the memory.'}
                 </p>
+                {staticDemo && (
+                  <p className="demo-example">
+                    <strong>Example favorites</strong>
+                    <span>Taylor Swift · Billie Eilish · Olivia Rodrigo</span>
+                    <small>Try a five-minute song to share, then save a family memory.</small>
+                  </p>
+                )}
                 <div className="bridge-start">
-                  <label htmlFor="heritage-choice">Which heritage would you like to share?</label>
+                  <label htmlFor="heritage-choice">
+                    {staticDemo
+                      ? 'Choose a heritage for the sample'
+                      : 'Which heritage would you like to share?'}
+                  </label>
                   <select
                     id="heritage-choice"
                     value={targetCollection}
@@ -319,11 +335,11 @@ export function App() {
                       )
                     }
                   >
-                    {staticDemo ? 'Try the interactive example' : 'Find our starting point'}{' '}
+                    {staticDemo ? 'Start the guided demo' : 'Find our starting point'}{' '}
                     <ArrowRight size={18} />
                   </button>
                 </div>
-                {mode !== 'unavailable' && (
+                {!staticDemo && mode !== 'unavailable' && (
                   <div className="home-examples" aria-label="See an example bridge">
                     {(mode === 'live' || staticDemo) && (
                       <button
@@ -389,10 +405,19 @@ export function App() {
                     </p>
                   </div>
                 )}
+                {staticDemo && (
+                  <p className="demo-provider-role">
+                    <strong>In the full app:</strong> Gemini checks the activity plan. Qloo Insights
+                    API v2 ranks choices from their favorites.
+                  </p>
+                )}
                 <a className="text-link browse-link" href="#collections">
-                  Browse the collections <ArrowRight size={16} />
+                  {staticDemo
+                    ? 'Or browse 90 films & songs across 9 collections'
+                    : 'Browse the collections'}{' '}
+                  <ArrowRight size={16} />
                 </a>
-                <p className="handwritten">For the stories you want to pass on.</p>
+                {!staticDemo && <p className="handwritten">For the stories you want to pass on.</p>}
               </div>
               <figure className="memory-illustration">
                 <img

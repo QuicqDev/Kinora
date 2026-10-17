@@ -1,0 +1,149 @@
+/* Keep the opening purpose, sample and next action visible together. */
+.judge-preview .demo-banner {
+  margin-bottom: 0;
+  padding: 10px 14px;
+  gap: 8px 14px;
+  font-size: 12px;
+}
+.judge-preview .demo-banner details {
+  flex-basis: auto;
+  margin-left: auto;
+}
+.judge-preview .library-intro {
+  grid-template-columns: 1.25fr 1fr;
+  gap: 44px;
+  padding: 28px 8px 42px;
+  align-items: center;
+}
+.judge-preview .library-intro h1 {
+  font-size: clamp(36px, 4vw, 52px);
+  margin: 12px 0 16px;
+}
+.judge-preview .library-intro .lead {
+  line-height: 1.65;
+  margin-bottom: 18px;
+}
+.judge-preview .demo-example {
+  display: grid;
+  gap: 5px;
+  padding-left: 14px;
+  border-left: 2px solid #a49370;
+  margin: 0 0 20px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.demo-example strong {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.demo-example small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.judge-preview .bridge-start {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin: 0;
+}
+.judge-preview .bridge-start label {
+  grid-column: 1 / -1;
+  font-size: 13px;
+}
+.judge-preview .bridge-start select {
+  width: 100%;
+  min-width: 0;
+  font-size: 13px;
+}
+.judge-preview .bridge-start .primary {
+  padding: 13px 16px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.judge-preview .demo-provider-role {
+  margin: 16px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.judge-preview .library-intro .browse-link {
+  margin-top: 14px;
+  font-size: 12px;
+}
+.judge-preview .favorites {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.judge-preview .favorite {
+  min-height: 44px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+.judge-preview .activity-brief {
+  margin: 16px 0;
+  padding: 16px;
+}
+.judge-preview .activity-brief > .eyebrow {
+  margin: 0 0 8px;
+}
+.judge-preview .sample-request {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+.sample-activity-options summary,
+.judge-preview .example-listeners summary {
+  cursor: pointer;
+  font-size: 12px;
+}
+.sample-activity-options[open] > summary {
+  margin-bottom: 12px;
+}
+.judge-preview .example-listeners {
+  margin-top: 16px;
+  padding-top: 12px;
+}
+.judge-preview .example-listeners details[open] > summary {
+  margin-bottom: 14px;
+}
+@media (max-width: 700px) {
+  .judge-preview .favorites {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .judge-preview .favorite {
+    padding: 0 10px;
+  }
+  .judge-preview .native-modal.wide .dialog-actions .primary {
+    order: -1;
+  }
+  .judge-preview .demo-banner {
+    gap: 5px 10px;
+  }
+  .judge-preview .demo-banner details {
+    margin-left: 0;
+  }
+  .judge-preview .library-intro {
+    grid-template-columns: 1fr;
+    padding: 24px 0 30px;
+    gap: 26px;
+  }
+  .judge-preview .library-intro h1 {
+    font-size: 35px;
+  }
+  .judge-preview .bridge-start {
+    grid-template-columns: 1fr;
+  }
+  .judge-preview .bridge-start .primary {
+    width: 100%;
+  }
+  .judge-preview .library-intro .lead {
+    font-size: 15px;
+  }
+  .judge-preview .demo-example {
+    margin-bottom: 16px;
+  }
+}

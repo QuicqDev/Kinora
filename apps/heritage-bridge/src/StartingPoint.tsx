@@ -98,7 +98,19 @@ export function StartingPoint({
       : [],
   );
   useEffect(() => {
-    if (plan) activityPanel.current?.scrollIntoView({ block: 'start' });
+    if (!plan || !activityPanel.current) return;
+    const panel = activityPanel.current;
+    const dialog = panel.closest('dialog');
+    if (dialog) {
+      // Scroll the proposal inside its dialog without moving the page or the modal itself.
+      dialog.scrollTo({
+        top:
+          dialog.scrollTop +
+          panel.getBoundingClientRect().top -
+          dialog.getBoundingClientRect().top -
+          24,
+      });
+    }
   }, [plan]);
 
   useEffect(() => {
@@ -289,13 +301,19 @@ export function StartingPoint({
         </div>
       ) : (
         <>
-          <p className="eyebrow">THEIR FAVORITES → {collection.subtitle}</p>
+          <p className="eyebrow">
+            {staticDemo
+              ? plan
+                ? 'GUIDED DEMO · CHECK THE PLAN'
+                : 'GUIDED DEMO · SAMPLE FAVORITES'
+              : 'THEIR FAVORITES → ' + collection.subtitle}
+          </p>
           <h2 ref={inputHeading} tabIndex={-1}>
-            What do they love?
+            {staticDemo ? 'Start with their favorites.' : 'What do they love?'}
           </h2>
           <p>
             {staticDemo
-              ? 'Choose three sample favorites to walk through the journey. Choices use fixed editorial order, so changing favorites does not personalize results.'
+              ? 'These example favorites are already filled in. Next, check which songs fit a five-minute moment.'
               : 'Choose three films, artists or books. We’ll use their favorites to find a film or song from your heritage to share together.'}
           </p>
           {mode === 'unavailable' ? (
@@ -307,7 +325,7 @@ export function StartingPoint({
             <>
               {mode === 'fixture' && (
                 <p className="sample-notice">
-                  Sample preview · fixed choices, not personalized Qloo matches.
+                  Fixed sample choices · no live Qloo ranking or AI generation.
                 </p>
               )}
               <div className="favorites">
@@ -315,7 +333,7 @@ export function StartingPoint({
                   <div className="favorite" key={f.id}>
                     <span>
                       <strong>{f.name}</strong>
-                      <small>{f.subtitle}</small>
+                      {!staticDemo && <small>{f.subtitle}</small>}
                     </span>
                     <button
                       className="icon-button"
@@ -335,54 +353,65 @@ export function StartingPoint({
               </div>
               {(mode === 'live' || staticDemo) && (
                 <div className="activity-brief" ref={activityPanel}>
-                  <label htmlFor="family-brief">
-                    <strong>What would fit your moment?</strong>{' '}
-                    <span className="hint">Optional</span>
-                  </label>
-                  <p className="hint">
-                    {staticDemo
-                      ? 'Choose a supported sample request below. This preview checks real catalogue durations locally and cannot interpret a custom situation.'
-                      : 'Tell us what you’re doing and any time limit. The agent will check the collection before suggesting a plan.'}
-                  </p>
-                  <textarea
-                    id="family-brief"
-                    maxLength={500}
-                    value={brief}
-                    disabled={busy}
-                    placeholder="We’re cooking together and want something to listen to."
-                    onChange={(e) => {
-                      setBrief(e.target.value);
-                      setPlan(undefined);
-                      setError('');
-                    }}
-                  />
-                  <p className="hint">
-                    {staticDemo
-                      ? 'Sample data only. No request leaves this browser. Your album notes stay on this device.'
-                      : 'This request goes to Gemini. Your album notes stay on this device.'}
-                  </p>
-                  {webMCPStatus === 'ready' && (
+                  {staticDemo && (
+                    <>
+                      <p className="eyebrow">YOUR SHARED MOMENT · {collection.subtitle}</p>
+                      <p className="sample-request">{brief || 'Choose a sample activity below.'}</p>
+                    </>
+                  )}
+                  <details className="sample-activity-options" open={staticDemo ? undefined : true}>
+                    <summary hidden={!staticDemo}>Change the sample activity</summary>
+                    <label htmlFor="family-brief">
+                      <strong>
+                        {staticDemo ? 'Sample request' : 'What would fit your moment?'}
+                      </strong>{' '}
+                      {!staticDemo && <span className="hint">Optional</span>}
+                    </label>
                     <p className="hint">
-                      WebMCP connected · Your browser assistant can ask for a plan here. You confirm
-                      before finding choices.
+                      {staticDemo
+                        ? 'Choose a supported sample request below. This preview checks real catalogue durations locally and cannot interpret a custom situation.'
+                        : 'Tell us what you’re doing and any time limit. The agent will check the collection before suggesting a plan.'}
                     </p>
-                  )}
-                  {!busy && (!brief || staticDemo) && (
-                    <div className="activity-examples">
-                      {activityExamples(collection.id, publishedWorks).map((example) => (
-                        <button
-                          className="text-link"
-                          key={example}
-                          onClick={() => {
-                            setBrief(example);
-                            setPlan(undefined);
-                          }}
-                        >
-                          {example}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                    <textarea
+                      id="family-brief"
+                      maxLength={500}
+                      value={brief}
+                      disabled={busy}
+                      placeholder="We’re cooking together and want something to listen to."
+                      onChange={(e) => {
+                        setBrief(e.target.value);
+                        setPlan(undefined);
+                        setError('');
+                      }}
+                    />
+                    <p className="hint">
+                      {staticDemo
+                        ? 'Sample data only. No request leaves this browser. Your album notes stay on this device.'
+                        : 'This request goes to Gemini. Your album notes stay on this device.'}
+                    </p>
+                    {webMCPStatus === 'ready' && (
+                      <p className="hint">
+                        WebMCP connected · Your browser assistant can ask for a plan here. You
+                        confirm before finding choices.
+                      </p>
+                    )}
+                    {!busy && (!brief || staticDemo) && (
+                      <div className="activity-examples">
+                        {activityExamples(collection.id, publishedWorks).map((example) => (
+                          <button
+                            className="text-link"
+                            key={example}
+                            onClick={() => {
+                              setBrief(example);
+                              setPlan(undefined);
+                            }}
+                          >
+                            {example}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </details>
                   {plan && (
                     <div className="activity-proposal" role="status" aria-live="polite">
                       <p className="eyebrow">
@@ -415,11 +444,15 @@ export function StartingPoint({
                       )}
                       {plan.activity?.kind === 'artist' && (
                         <p className="hint">
-                          {staticDemo
-                            ? 'In the full app, Qloo ranks artists; here, artist order is a fixed sample. The starting song is editorial.'
-                            : 'Qloo ranks artists; the starting song is editorial.'}{' '}
-                          A time limit includes only recordings with a verified duration. Allow
-                          extra time to open the service and talk.
+                          {staticDemo ? (
+                            'The sample artist order is fixed. The time check applies to the linked recording only; allow extra time to open it and talk.'
+                          ) : (
+                            <>
+                              Qloo ranks artists; the starting song is editorial. A time limit
+                              includes only recordings with a verified duration. Allow extra time to
+                              open the service and talk.
+                            </>
+                          )}
                         </p>
                       )}
                     </div>
@@ -480,33 +513,36 @@ export function StartingPoint({
                     </button>
                   </div>
                   <div className="example-listeners">
-                    <p className="eyebrow">OR SEE THE BRIDGE WITH AN EXAMPLE</p>
-                    {mode === 'live' || staticDemo ? (
-                      exampleListeners.map((p) => (
-                        <button
-                          key={p.id}
-                          className="example-listener"
-                          onClick={() => find(p.id, undefined, staticDemo)}
-                        >
-                          <span>
-                            <strong>{p.label}</strong>
-                            <small>{p.names.join(' · ')}</small>
-                          </span>
-                          <ArrowRight size={18} />
+                    <details open={staticDemo ? undefined : true}>
+                      <summary hidden={!staticDemo}>Try other sample favorites</summary>
+                      <p className="eyebrow">OR SEE THE BRIDGE WITH AN EXAMPLE</p>
+                      {mode === 'live' || staticDemo ? (
+                        exampleListeners.map((p) => (
+                          <button
+                            key={p.id}
+                            className="example-listener"
+                            onClick={() => find(p.id, undefined, staticDemo)}
+                          >
+                            <span>
+                              <strong>{p.label}</strong>
+                              <small>{p.names.join(' · ')}</small>
+                            </span>
+                            <ArrowRight size={18} />
+                          </button>
+                        ))
+                      ) : (
+                        <button className="secondary" onClick={() => find('fixture')}>
+                          See a sample bridge <ArrowRight size={16} />
                         </button>
-                      ))
-                    ) : (
-                      <button className="secondary" onClick={() => find('fixture')}>
-                        See a sample bridge <ArrowRight size={16} />
-                      </button>
-                    )}
-                    <p className="hint">
-                      {mode === 'live' || staticDemo
-                        ? staticDemo
-                          ? 'Synthetic listeners using real artists. Sample identities are local; no Qloo search or ranking runs.'
-                          : 'Made-up listener profiles using real artists. Qloo checks the names and ranks the choices; recent results may be reused.'
-                        : 'An example of the flow. No Qloo request is made.'}
-                    </p>
+                      )}
+                      <p className="hint">
+                        {mode === 'live' || staticDemo
+                          ? staticDemo
+                            ? 'Synthetic listeners using real artists. Sample identities are local; no Qloo search or ranking runs.'
+                            : 'Made-up listener profiles using real artists. Qloo checks the names and ranks the choices; recent results may be reused.'
+                          : 'An example of the flow. No Qloo request is made.'}
+                      </p>
+                    </details>
                   </div>
                 </>
               )}

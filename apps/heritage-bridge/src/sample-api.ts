@@ -36,7 +36,7 @@ export function samplePlan(collection: CollectionId, brief: string): ActivityPla
     return {
       status: 'needs_input',
       message:
-        'This guided demo supports only the sample requests below. It cannot interpret a custom request. Choose a sample to continue; no Gemini call was made.',
+        'This demo supports only the requests in “Change the sample activity.” It cannot interpret a custom request. Choose a sample to continue; no Gemini call was made.',
       checks: ['Custom input was not interpreted or silently relaxed.'],
     };
   const activity = brief.includes('song')
@@ -49,8 +49,7 @@ export function samplePlan(collection: CollectionId, brief: string): ActivityPla
     status: pool.length ? 'ready' : 'needs_input',
     activity,
     eligibleCount: pool.length,
-    message:
-      'Sample activity plan, checked locally against the reviewed catalogue. This is a guided example, not a freshly generated Gemini plan.',
+    message: `Sample plan: ${pool.length} reviewed ${activity.kind === 'artist' ? 'recordings' : 'films'} fit the playback limit. Checked locally; no Gemini call was made.`,
     checks: [
       `Selected collection: ${library.find((c) => c.id === collection)!.subtitle}.`,
       `Playback limit: ${activity.maxMinutes} minutes. ${pool.length} reviewed ${activity.kind === 'artist' ? 'starting recordings' : 'films'} fit before your exclusions.`,

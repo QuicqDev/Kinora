@@ -16,3 +16,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>,
 );
 import './library.css';
+import './judge-demo.css';
