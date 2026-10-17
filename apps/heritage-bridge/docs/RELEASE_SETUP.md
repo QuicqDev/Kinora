@@ -1,6 +1,6 @@
 # Small single-instance release setup
 
-This document covers the full live app. For the backend-free GitHub Pages sample preview, use [STATIC_DEMO.md](STATIC_DEMO.md) and `npm run build:static`. The static artifact contains no server, credentials or private state, and the workflow uploads only `dist/`. Private-repository Pages is currently blocked by the existing GitHub plan; visibility has not been changed.
+This document covers the full live app. For the backend-free GitHub Pages sample preview, use [STATIC_DEMO.md](STATIC_DEMO.md) and `npm run build:static`. The static artifact contains no server, credentials or private state, and the workflow uploads only `dist/`. The static preview is deployed at https://quicqdev.github.io/Kinora/ after the owner made the repository public. This does not deploy the full live backend.
 
 Use Node >=22.19. Build with `npm ci` and `npm run build`. Keep the generated dist folder, server/shared/scripts source and lockfile in the deployment artifact. A production `npm ci --omit=dev` retains tsx, which runs the server. Start with `npm start`.
 

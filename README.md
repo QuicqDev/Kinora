@@ -8,7 +8,7 @@ Previously called Heritage Bridge. The app directory, environment variables and 
 
 ## Static judge preview
 
-`npm run build:static` in the app directory creates a backend-free preview with **90 reviewed works across nine collections**: Hindi, Tamil, Mexican, French, British, US, Japanese, Korean and Italian. Plans and ranked positions are clearly labeled editorial samples; no Qloo, Gemini or other live recommendation calls run. The full live app remains a separate build. See [static demo and deployment status](apps/heritage-bridge/docs/STATIC_DEMO.md). GitHub Pages is currently blocked by the private repository's account-plan restriction; the repository has not been made public.
+`npm run build:static` in the app directory creates a backend-free preview with **90 reviewed works across nine collections**: Hindi, Tamil, Mexican, French, British, US, Japanese, Korean and Italian. Plans and ranked positions are clearly labeled editorial samples; no Qloo, Gemini or other live recommendation calls run. The full live app remains a separate build. See [static demo and deployment status](apps/heritage-bridge/docs/STATIC_DEMO.md). The [interactive judge preview is live on GitHub Pages](https://quicqdev.github.io/Kinora/). It was deployed and verified on October 17, 2026, after the owner made the repository public.
 
 ## Install and run
 
